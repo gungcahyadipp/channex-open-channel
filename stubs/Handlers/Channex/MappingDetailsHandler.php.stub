@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Handlers\Channex;
+
+use GungCahyadiPP\ChannexOpenChannel\DTOs\RatePlan;
+use GungCahyadiPP\ChannexOpenChannel\DTOs\RoomType;
+use GungCahyadiPP\ChannexOpenChannel\Handlers\AbstractMappingDetailsHandler;
+
+class MappingDetailsHandler extends AbstractMappingDetailsHandler
+{
+    /**
+     * Get room types with rate plans for the given hotel
+     * 
+     * @param string $hotelCode The hotel code from Channex
+     * @return RoomType[] Array of room types with their rate plans
+     */
+    protected function getRoomTypes(string $hotelCode): array
+    {
+        // TODO: Implement your logic to fetch room types from database
+        // Example:
+        // $property = \App\Models\Property::where('channex_hotel_code', $hotelCode)->first();
+        // 
+        // if (!$property) {
+        //     return [];
+        // }
+        // 
+        // return $property->roomTypes->map(function ($room) {
+        //     $roomType = new RoomType(
+        //         id: (string) $room->id,
+        //         title: $room->name
+        //     );
+        //     
+        //     foreach ($room->ratePlans as $rate) {
+        //         $roomType->addRatePlan(new RatePlan(
+        //             id: (string) $rate->id,
+        //             title: $rate->name,
+        //             sellMode: RatePlan::SELL_MODE_PER_ROOM,
+        //             maxPersons: $room->max_occupancy,
+        //             currency: $rate->currency ?? 'USD',
+        //             readOnly: false
+        //         ));
+        //     }
+        //     
+        //     return $roomType;
+        // })->toArray();
+
+        // For testing, return sample data
+        $standardRoom = new RoomType(
+            id: 'room_1',
+            title: 'Standard Room'
+        );
+        $standardRoom->addRatePlan(new RatePlan(
+            id: 'rate_1',
+            title: 'Best Available Rate',
+            sellMode: RatePlan::SELL_MODE_PER_ROOM,
+            maxPersons: 2,
+            currency: 'USD',
+            readOnly: false
+        ));
+
+        $deluxeRoom = new RoomType(
+            id: 'room_2',
+            title: 'Deluxe Room'
+        );
+        $deluxeRoom->addRatePlan(new RatePlan(
+            id: 'rate_2',
+            title: 'Best Available Rate',
+            sellMode: RatePlan::SELL_MODE_PER_ROOM,
+            maxPersons: 3,
+            currency: 'USD',
+            readOnly: false
+        ));
+
+        return [$standardRoom, $deluxeRoom];
+    }
+}

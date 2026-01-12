@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Handlers\Channex;
+
+use GungCahyadiPP\ChannexOpenChannel\Handlers\AbstractTestConnectionHandler;
+
+class TestConnectionHandler extends AbstractTestConnectionHandler
+{
+    /**
+     * Validate if the hotel code exists in your system
+     * 
+     * @param string $hotelCode The hotel code from Channex
+     * @return bool True if the hotel code is valid
+     */
+    protected function validateHotelCode(string $hotelCode): bool
+    {
+        // TODO: Implement your validation logic
+        // Example:
+        // return \App\Models\Property::where('channex_hotel_code', $hotelCode)->exists();
+        
+        // For testing, return true if hotel_code is not empty
+        return !empty($hotelCode);
+    }
+}

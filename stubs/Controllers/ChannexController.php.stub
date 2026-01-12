@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Handlers\Channex\TestConnectionHandler;
+use App\Handlers\Channex\MappingDetailsHandler;
+use App\Handlers\Channex\ChangesHandler;
+use GungCahyadiPP\ChannexOpenChannel\ChannexConfig;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class ChannexController extends Controller
+{
+    public function __construct(
+        private ChannexConfig $config,
+    ) {}
+
+    /**
+     * GET /api/channex/test_connection/?hotel_code={HOTEL_CODE}
+     */
+    public function testConnection(Request $request): JsonResponse
+    {
+        $handler = new TestConnectionHandler($this->config);
+        
+        $response = $handler->handle(
+            (string) $request->query('hotel_code', ''),
+            $request->header('api-key')
+        );
+        
+        return response()->json($response);
+    }
+
+    /**
+     * GET /api/channex/mapping_details/?hotel_code={HOTEL_CODE}
+     */
+    public function mappingDetails(Request $request): JsonResponse
+    {
+        $handler = new MappingDetailsHandler($this->config);
+        
+        $response = $handler->handle(
+            (string) $request->query('hotel_code', ''),
+            $request->header('api-key')
+        );
+        
+        return response()->json($response);
+    }
+
+    /**
+     * GET|POST /api/channex/changes/
+     * 
+     * Support both GET and POST methods:
+     * - POST: payload in request body (JSON)
+     * - GET: payload in query parameter 'data' (JSON string)
+     */
+    public function changes(Request $request): JsonResponse
+    {
+        $handler = new ChangesHandler($this->config);
+        
+        try {
+            if ($request->isMethod('post')) {
+                // POST: payload dari body
+                $payload = $handler->parseRequest($request->getContent());
+            } else {
+                // GET: payload dari query parameter 'data'
+                $dataParam = $request->query('data', '{}');
+                $payload = $handler->parseRequest($dataParam);
+            }
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid JSON payload',
+            ]);
+        }
+        
+        $response = $handler->handle($payload, $request->header('api-key'));
+        
+        return response()->json($response);
+    }
+}

@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Handlers\Channex;
+
+use GungCahyadiPP\ChannexOpenChannel\DTOs\AvailabilityChange;
+use GungCahyadiPP\ChannexOpenChannel\DTOs\RestrictionChange;
+use GungCahyadiPP\ChannexOpenChannel\Handlers\AbstractChangesHandler;
+use Illuminate\Support\Facades\Log;
+
+class ChangesHandler extends AbstractChangesHandler
+{
+    /**
+     * Process availability changes from Channex
+     * 
+     * @param string $hotelCode The hotel code
+     * @param AvailabilityChange[] $changes Array of availability changes
+     */
+    protected function processAvailabilityChanges(string $hotelCode, array $changes): void
+    {
+        foreach ($changes as $change) {
+            // TODO: Implement your logic to update availability in database
+            // Example:
+            // \App\Models\Availability::updateOrCreate(
+            //     [
+            //         'room_type_id' => $change->roomTypeId,
+            //         'date' => $change->dateFrom,
+            //     ],
+            //     [
+            //         'available' => $change->availability,
+            //     ]
+            // );
+
+            Log::info('Channex Availability Change', [
+                'hotel_code' => $hotelCode,
+                'room_type_id' => $change->roomTypeId,
+                'rate_plan_id' => $change->ratePlanId,
+                'date_from' => $change->dateFrom,
+                'date_to' => $change->dateTo,
+                'availability' => $change->availability,
+            ]);
+        }
+    }
+
+    /**
+     * Process restriction changes (rates, stop sell, min stay, etc.) from Channex
+     * 
+     * @param string $hotelCode The hotel code
+     * @param RestrictionChange[] $changes Array of restriction changes
+     */
+    protected function processRestrictionChanges(string $hotelCode, array $changes): void
+    {
+        foreach ($changes as $change) {
+            $rate = $change->getRateForOccupancy();
+            
+            // TODO: Implement your logic to update restrictions in database
+            // Example:
+            // \App\Models\Restriction::updateOrCreate(
+            //     [
+            //         'rate_plan_id' => $change->ratePlanId,
+            //         'date' => $change->dateFrom,
+            //     ],
+            //     [
+            //         'rate' => $rate?->getAmount(),
+            //         'currency' => $rate?->currency,
+            //         'stop_sell' => $change->stopSell,
+            //         'closed_to_arrival' => $change->closedToArrival,
+            //         'closed_to_departure' => $change->closedToDeparture,
+            //         'min_stay_arrival' => $change->minStayArrival,
+            //         'min_stay_through' => $change->minStayThrough,
+            //         'max_stay' => $change->maxStay,
+            //     ]
+            // );
+
+            Log::info('Channex Restriction Change', [
+                'hotel_code' => $hotelCode,
+                'rate_plan_id' => $change->ratePlanId,
+                'room_type_id' => $change->roomTypeId,
+                'date_from' => $change->dateFrom,
+                'date_to' => $change->dateTo,
+                'rate' => $rate?->getAmount(),
+                'stop_sell' => $change->stopSell,
+                'closed_to_arrival' => $change->closedToArrival,
+                'closed_to_departure' => $change->closedToDeparture,
+                'min_stay_arrival' => $change->minStayArrival,
+                'min_stay_through' => $change->minStayThrough,
+                'max_stay' => $change->maxStay,
+            ]);
+        }
+    }
+}

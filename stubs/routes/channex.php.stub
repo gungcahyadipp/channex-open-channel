@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChannexController;
+
+/*
+|--------------------------------------------------------------------------
+| Channex API Routes
+|--------------------------------------------------------------------------
+|
+| Endpoints untuk menerima request dari Channex Open Channel.
+| Tambahkan routes ini ke file routes/api.php Anda.
+|
+*/
+
+Route::prefix('channex')->group(function () {
+    // Test Connection - Channex akan memanggil ini untuk test koneksi
+    Route::get('/test_connection/', [ChannexController::class, 'testConnection']);
+    
+    // Mapping Details - Channex akan memanggil ini untuk mendapatkan daftar room dan rate plan
+    Route::get('/mapping_details/', [ChannexController::class, 'mappingDetails']);
+    
+    // Changes - Channex akan mengirim perubahan availability dan restriction ke sini
+    // Support GET dan POST
+    Route::match(['get', 'post'], '/changes/', [ChannexController::class, 'changes']);
+});
