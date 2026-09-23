@@ -65,6 +65,37 @@ class ChangesDTOsTest extends TestCase
         $this->assertCount(1, $change->rates);
     }
 
+    public function test_restriction_change_from_array_without_restriction_fields_stays_null(): void
+    {
+        // Channex mengirim payload rates-only (murni update harga) tanpa field
+        // stop_sell/CTA/CTD/min_stay/max_stay sama sekali. Sebelum fix, field-field ini
+        // default ke false/1/0 walau tidak pernah dikirim, sehingga consumer yang mengecek
+        // `!== null` salah mengira nilai itu memang di-set oleh Channex dan menimpa ulang
+        // restriction lain (mis. stop_sell=true) yang sudah benar untuk tanggal yang sama.
+        $data = [
+            'type' => 'restriction_changes',
+            'attributes' => [
+                'rate_plan_id' => 'rate_1',
+                'room_type_id' => 'room_1',
+                'date_from' => '2024-01-01',
+                'date_to' => '2024-01-05',
+                'rates' => [
+                    ['rate' => '100.00', 'currency' => 'USD', 'fraction_size' => 2, 'occupancy' => 2],
+                ],
+            ],
+        ];
+
+        $change = RestrictionChange::fromArray($data);
+
+        $this->assertNull($change->stopSell);
+        $this->assertNull($change->closedToArrival);
+        $this->assertNull($change->closedToDeparture);
+        $this->assertNull($change->minStayArrival);
+        $this->assertNull($change->minStayThrough);
+        $this->assertNull($change->maxStay);
+        $this->assertNull($change->isAvailable());
+    }
+
     public function test_restriction_change_get_rate_for_occupancy(): void
     {
         $change = new RestrictionChange(
